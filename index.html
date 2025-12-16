@@ -52,6 +52,9 @@
     <div id="koResult" class="result"></div>
 
     <div class="rules">
+      <strong>可翻譯單字清單：</strong>
+      <ul id="wordList"></ul>
+      <hr>
       <strong>使用規則：</strong>
       <ul>
         <li>上方輸入區只能輸入中文</li>
@@ -127,6 +130,14 @@
       const zhWord = Object.keys(dictionary).find(key => dictionary[key] === input);
       result.textContent = zhWord || "找不到對應的中文";
     }
+      // 顯示可翻譯單字清單
+    const wordList = document.getElementById("wordList");
+    Object.keys(dictionary).forEach(zh => {
+      const li = document.createElement("li");
+      li.textContent = zh + " ⇄ " + dictionary[zh];
+      wordList.appendChild(li);
+    });
+
   </script>
 
 </body>
