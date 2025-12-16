@@ -67,29 +67,19 @@
   </div>
 
   <script>
-    // 中韓對照字典（示範用）
-    const dictionary = {
-      "你好": "안녕하세요",
-      "謝謝": "감사합니다",
-      "再見": "안녕히 가세요",
-      "對不起": "죄송합니다",
-      "請": "주세요",
-      "是": "네",
-      "不是": "아니요",
-      "我": "저",
-      "你": "당신",
-      "喜歡": "좋아해요",
-      "今天": "오늘",
-      "明天": "내일",
-      "昨天": "어제",
-      "老師": "선생님",
-      "學生": "학생",
-      "朋友": "친구",
-      "家": "집",
-      "吃": "먹어요",
-      "喝": "마셔요",
-      "學習": "공부해요"
-    };
+    // 中韓對照字典（從外部 JSON 載入）
+let dictionary = {};
+
+// 載入 1000 個日常中韓單字
+fetch("words.json")
+  .then(res => res.json())
+  .then(data => {
+    dictionary = data;
+    renderWordList();
+  })
+  .catch(() => {
+    console.error("無法載入 words.json");
+  });
 
     // === 自動擴充到 1000 個單字（示範用） ===
     // 說明：為了避免手動輸入 1000 筆資料，這裡用程式自動產生示範單字
@@ -148,18 +138,25 @@
       result.textContent = zhWord || "找不到對應的中文";
     }
           // 顯示可翻譯單字清單
-    const wordList = document.getElementById("wordList");
-    Object.keys(dictionary).forEach(zh => {
-      const li = document.createElement("li");
-      li.textContent = zh + " ⇄ " + dictionary[zh];
-      wordList.appendChild(li);
-    });
+function renderWordList() {
+  const wordList = document.getElementById("wordList");
+  wordList.innerHTML = "";
+  Object.keys(dictionary).forEach(zh => {
+    const li = document.createElement("li");
+    li.textContent = zh + " ⇄ " + dictionary[zh];
+    wordList.appendChild(li);
+  });
+}
 
-    // 展開 / 收合 單字清單
-    function toggleList() {
-      if (wordList.style.display === "none") {
-        wordList.style.display = "block";
-      } else {
+// 展開 / 收合 單字清單
+function toggleList() {
+  const wordList = document.getElementById("wordList");
+  if (wordList.style.display === "none") {
+    wordList.style.display = "block";
+  } else {
+    wordList.style.display = "none";
+  }
+} else {
         wordList.style.display = "none";
       }
     }
@@ -168,4 +165,3 @@
 
 </body>
 </html>
-
