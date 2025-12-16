@@ -1,11 +1,115 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset = "utf-8">
-    <title>網站標題</title>
-    <link rel="icon" href="icon.jpg">
-  </head>
-  <body>
-      hello world
-  </body>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>中韓即時翻譯練習</title>
+  <link rel="icon" href="icon.jpg">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      padding: 20px;
+    }
+    .box {
+      background-color: #fff;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 8px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+    }
+    .result {
+      margin-top: 10px;
+      color: #333;
+      min-height: 20px;
+    }
+    .rules {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>中文 ➜ 韓文（即時）</h2>
+    <input id="zhInput" type="text" placeholder="請輸入中文" oninput="zhToKo()">
+    <div id="zhResult" class="result"></div>
+
+    <hr>
+
+    <h2>韓文 ➜ 中文（即時）</h2>
+    <input id="koInput" type="text" placeholder="한국어를 입력하세요" oninput="koToZh()">
+    <div id="koResult" class="result"></div>
+
+    <div class="rules">
+      <strong>使用規則：</strong>
+      <ul>
+        <li>上方輸入區只能輸入中文</li>
+        <li>下方輸入區只能輸入韓文</li>
+        <li>輸入時會即時翻譯，不需要按按鈕</li>
+        <li>僅支援示範用詞彙</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const dictionary = {
+      "你好": "안녕하세요",
+      "謝謝": "감사합니다",
+      "再見": "안녕히 가세요",
+      "對不起": "죄송합니다",
+      "請": "주세요",
+      "是": "네",
+      "不是": "아니요",
+      "我": "저",
+      "你": "당신",
+      "喜歡": "좋아해요"
+      "今天": "오늘",
+      "明天": "내일",
+      "昨天": "어제",
+      "老師": "선생님",
+      "學生": "학생",
+      "朋友": "친구",
+      "家": "집",
+      "吃": "먹어요",
+      "喝": "마셔요",
+      "學習": "공부해요"
+    };
+
+    function zhToKo() {
+      const input = document.getElementById("zhInput").value;
+      const result = document.getElementById("zhResult");
+      if (input === "") {
+        result.textContent = "";
+        return;
+      }
+      if (!/^[\u4e00-\u9fa5]+$/.test(input)) {
+        result.textContent = "請只輸入中文";
+        return;
+      }
+      result.textContent = dictionary[input] || "找不到對應的韓文";
+    }
+
+    function koToZh() {
+      const input = document.getElementById("koInput").value;
+      const result = document.getElementById("koResult");
+      if (input === "") {
+        result.textContent = "";
+        return;
+      }
+      if (!/^[\uac00-\ud7af]+$/.test(input)) {
+        result.textContent = "請只輸入韓文";
+        return;
+      }
+      const zhWord = Object.keys(dictionary).find(key => dictionary[key] === input);
+      result.textContent = zhWord || "找不到對應的中文";
+    }
+  </script>
+</body>
 </html>
+
