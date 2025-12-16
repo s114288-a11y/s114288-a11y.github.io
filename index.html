@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>中韓即時翻譯練習</title>
+  <title>中韓即時翻譯練習（修正版）</title>
   <link rel="icon" href="icon.jpg">
   <style>
     body {
@@ -11,9 +11,9 @@
       padding: 20px;
     }
     .box {
-      background-color: #fff;
+      background-color: #ffffff;
       padding: 20px;
-      max-width: 500px;
+      max-width: 520px;
       margin: auto;
       border-radius: 8px;
     }
@@ -21,11 +21,15 @@
       width: 100%;
       padding: 8px;
       margin-top: 10px;
+      font-size: 16px;
     }
     .result {
       margin-top: 10px;
+      min-height: 22px;
       color: #333;
-      min-height: 20px;
+    }
+    .error {
+      color: red;
     }
     .rules {
       margin-top: 20px;
@@ -35,14 +39,15 @@
   </style>
 </head>
 <body>
+
   <div class="box">
-    <h2>中文 ➜ 韓文（即時）</h2>
+    <h2>中文 ➜ 韓文（即時翻譯）</h2>
     <input id="zhInput" type="text" placeholder="請輸入中文" oninput="zhToKo()">
     <div id="zhResult" class="result"></div>
 
     <hr>
 
-    <h2>韓文 ➜ 中文（即時）</h2>
+    <h2>韓文 ➜ 中文（即時翻譯）</h2>
     <input id="koInput" type="text" placeholder="한국어를 입력하세요" oninput="koToZh()">
     <div id="koResult" class="result"></div>
 
@@ -52,12 +57,13 @@
         <li>上方輸入區只能輸入中文</li>
         <li>下方輸入區只能輸入韓文</li>
         <li>輸入時會即時翻譯，不需要按按鈕</li>
-        <li>僅支援示範用詞彙</li>
+        <li>僅支援示範用詞彙（字典翻譯）</li>
       </ul>
     </div>
   </div>
 
   <script>
+    // 中韓對照字典（示範用）
     const dictionary = {
       "你好": "안녕하세요",
       "謝謝": "감사합니다",
@@ -68,7 +74,7 @@
       "不是": "아니요",
       "我": "저",
       "你": "당신",
-      "喜歡": "좋아해요"
+      "喜歡": "좋아해요",
       "今天": "오늘",
       "明天": "내일",
       "昨天": "어제",
@@ -82,34 +88,46 @@
     };
 
     function zhToKo() {
-      const input = document.getElementById("zhInput").value;
+      const input = document.getElementById("zhInput").value.trim();
       const result = document.getElementById("zhResult");
+      result.className = "result";
+
       if (input === "") {
         result.textContent = "";
         return;
       }
+
+      // 正確的中文判斷（完整 CJK）
       if (!/^[\u4e00-\u9fff]+$/.test(input)) {
         result.textContent = "請只輸入中文";
+        result.classList.add("error");
         return;
       }
+
       result.textContent = dictionary[input] || "找不到對應的韓文";
     }
 
     function koToZh() {
-      const input = document.getElementById("koInput").value;
+      const input = document.getElementById("koInput").value.trim();
       const result = document.getElementById("koResult");
+      result.className = "result";
+
       if (input === "") {
         result.textContent = "";
         return;
       }
+
+      // 韓文判斷
       if (!/^[\uac00-\ud7af]+$/.test(input)) {
         result.textContent = "請只輸入韓文";
+        result.classList.add("error");
         return;
       }
+
       const zhWord = Object.keys(dictionary).find(key => dictionary[key] === input);
       result.textContent = zhWord || "找不到對應的中文";
     }
   </script>
+
 </body>
 </html>
-
