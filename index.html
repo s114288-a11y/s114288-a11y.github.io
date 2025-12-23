@@ -56,77 +56,128 @@
         <li>上方輸入區只能輸入中文</li>
         <li>下方輸入區只能輸入韓文</li>
         <li>輸入時會即時翻譯，不需要按按鈕</li>
-        <li>僅支援示範用詞彙（字典翻譯）</li>
+        <li>僅支援字典中已有的詞彙</li>
       </ul>
+      <hr>
+      <strong>可翻譯單字清單：</strong><br>
+      <button onclick="toggleList()" style="margin:8px 0;">展開 / 收合</button>
+      <ul id="wordList" style="display:none; max-height:300px; overflow:auto;"></ul>
     </div>
   </div>
 
   <script>
-    // 中韓對照字典（示範用）
-    const dictionary = {
-      "你好": "안녕하세요",
-      "謝謝": "감사합니다",
-      "再見": "안녕히 가세요",
-      "對不起": "죄송합니다",
-      "請": "주세요",
-      "是": "네",
-      "不是": "아니요",
-      "我": "저",
-      "你": "당신",
-      "喜歡": "좋아해요",
-      "今天": "오늘",
-      "明天": "내일",
-      "昨天": "어제",
-      "老師": "선생님",
-      "學生": "학생",
-      "朋友": "친구",
-      "家": "집",
-      "吃": "먹어요",
-      "喝": "마셔요",
-      "學習": "공부해요"
-    };
+// ===============================
+// 1. 中韓對照字典（從外部 JSON 載入）
+// ===============================
+// ===============================
+// 1. 中韓對照字典（直接內建，不使用外部檔案）
+// ===============================
+const dictionary = {
+  "你好": "안녕하세요",
+  "謝謝": "감사합니다",
+  "對不起": "죄송합니다",
+  "再見": "안녕히 가세요",
+  "請": "주세요",
+  "是": "네",
+  "不是": "아니요",
+  "今天": "오늘",
+  "明天": "내일",
+  "昨天": "어제",
+  "朋友": "친구",
+  "老師": "선생님",
+  "學生": "학생",
+  "學校": "학교",
+  "家": "집",
+  "吃": "먹어요",
+  "喝": "마셔요",
+  "看": "봐요",
+  "聽": "들어요",
+  "說": "말해요",
+  "走": "가요",
+  "來": "와요",
+  "買": "사요",
+  "睡覺": "자요",
+  "起床": "일어나요",
+  "學習": "공부해요",
+  "運動": "운동해요",
+  "休息": "쉬어요",
+  "忙": "바빠요",
+  "不忙": "안 바빠요",
+  "好": "좋아요",
+  "不好": "안 좋아요"
+};
 
-    function zhToKo() {
-      const input = document.getElementById("zhInput").value.trim();
-      const result = document.getElementById("zhResult");
-      result.className = "result";
+// 頁面載入完成後產生單字清單
+renderWordList();
 
-      if (input === "") {
-        result.textContent = "";
-        return;
-      }
+// ===============================
+// 2. 中文 ➜ 韓文
+// ===============================
+function zhToKo() {
+  const input = document.getElementById("zhInput").value.trim();
+  const result = document.getElementById("zhResult");
+  result.className = "result";
 
-      // 正確的中文判斷（完整 CJK）
-      if (!/^[\u4e00-\u9fff]+$/.test(input)) {
-        result.textContent = "請只輸入中文";
-        result.classList.add("error");
-        return;
-      }
+  if (input === "") {
+    result.textContent = "";
+    return;
+  }
 
-      result.textContent = dictionary[input] || "找不到對應的韓文";
-    }
+  if (!/^[一-鿿]+$/.test(input)) {
+    result.textContent = "請只輸入中文";
+    result.classList.add("error");
+    return;
+  }
 
-    function koToZh() {
-      const input = document.getElementById("koInput").value.trim();
-      const result = document.getElementById("koResult");
-      result.className = "result";
+  result.textContent = dictionary[input] || "找不到對應的韓文";
+}
 
-      if (input === "") {
-        result.textContent = "";
-        return;
-      }
+// ===============================
+// 3. 韓文 ➜ 中文
+// ===============================
+function koToZh() {
+  const input = document.getElementById("koInput").value.trim();
+  const result = document.getElementById("koResult");
+  result.className = "result";
 
-      // 韓文判斷
-      if (!/^[\uac00-\ud7af]+$/.test(input)) {
-        result.textContent = "請只輸入韓文";
-        result.classList.add("error");
-        return;
-      }
+  if (input === "") {
+    result.textContent = "";
+    return;
+  }
 
-      const zhWord = Object.keys(dictionary).find(key => dictionary[key] === input);
-      result.textContent = zhWord || "找不到對應的中文";
-    }
-  </script>
+  if (!/^[가-힯]+$/.test(input)) {
+    result.textContent = "請只輸入韓文";
+    result.classList.add("error");
+    return;
+  }
+
+  const zhWord = Object.keys(dictionary).find(key => dictionary[key] === input);
+  result.textContent = zhWord || "找不到對應的中文";
+}
+
+// ===============================
+// 4. 顯示可翻譯單字清單
+// ===============================
+function renderWordList() {
+  const wordList = document.getElementById("wordList");
+  wordList.innerHTML = "";
+
+  Object.keys(dictionary).forEach(zh => {
+    const li = document.createElement("li");
+    li.textContent = zh + " ⇄ " + dictionary[zh];
+    wordList.appendChild(li);
+  });
+}
+
+// ===============================
+// 5. 展開 / 收合
+// ===============================
+function toggleList() {
+  const wordList = document.getElementById("wordList");
+  wordList.style.display =
+    wordList.style.display === "none" ? "block" : "none";
+}
+</script>
 
 </body>
 </html>
