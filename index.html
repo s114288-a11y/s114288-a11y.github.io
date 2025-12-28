@@ -1226,26 +1226,37 @@ const dictionary = {
 </script>
 <script>
 // 頁面載入後建立單字清單
-
 document.addEventListener("DOMContentLoaded", renderWordList);
+
+function renderWordList() {
+  const list = document.getElementById("wordList");
+  list.innerHTML = "";
+  Object.keys(dictionary).forEach(word => {
+    const li = document.createElement("li");
+    li.textContent = `${word} ➜ ${dictionary[word]}`;
+    list.appendChild(li);
+  });
+}
+
+function toggleList() {
+  const list = document.getElementById("wordList");
+  list.style.display = list.style.display === "none" ? "block" : "none";
+}
 
 function zhToKo() {
   const input = document.getElementById("zhInput").value.trim();
   const resultDiv = document.getElementById("zhResult");
   const countDiv = document.getElementById("zhCount");
-
   if (!input) {
     resultDiv.textContent = "";
     countDiv.textContent = "";
     return;
   }
-
-  let result = "";
+  let translated = "";
   for (let char of input) {
-    result += dictionary[char] || `[${char}]`;
+    translated += dictionary[char] ? dictionary[char] : char;
   }
-
-  resultDiv.textContent = result;
+  resultDiv.textContent = translated;
   countDiv.textContent = `字數: ${input.length}`;
 }
 
@@ -1253,46 +1264,20 @@ function koToZh() {
   const input = document.getElementById("koInput").value.trim();
   const resultDiv = document.getElementById("koResult");
   const countDiv = document.getElementById("koCount");
-
   if (!input) {
     resultDiv.textContent = "";
     countDiv.textContent = "";
     return;
   }
-
-  let result = "";
-  for (let [key, value] of Object.entries(dictionary)) {
-    if (input.includes(value)) {
-      result += key;
-    }
+  let translated = "";
+  for (let char of input) {
+    const key = Object.keys(dictionary).find(k => dictionary[k] === char);
+    translated += key ? key : char;
   }
-
-  resultDiv.textContent = result || "[無對應]";
+  resultDiv.textContent = translated;
   countDiv.textContent = `字數: ${input.length}`;
 }
-
-// 顯示 / 隱藏單字清單
- function renderWordList() {
-      const ul = document.getElementById("wordList");
-      ul.innerHTML = "";
-      for (let key in dictionary) {
-        const li = document.createElement("li");
-        li.textContent = `${key} ➜ ${dictionary[key]}`;
-        ul.appendChild(li);
-      }
-    }
-
-    // 切換單字清單顯示
-    function toggleList() {
-      const ul = document.getElementById("wordList");
-      if (ul.style.display === "none") {
-        renderWordList();
-        ul.style.display = "block";
-      } else {
-        ul.style.display = "none";
-      }
-    }
-  </script>
+</script>
 
 </body>
 </html>
