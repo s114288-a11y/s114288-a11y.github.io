@@ -2167,58 +2167,57 @@ const dictionary = {
   "穿搭照": "착장 사진"
 
 };
-</script>
-<script>
- const wordListEl = document.getElementById('wordList');
-  Object.keys(dictionary).forEach(k => {
-    const li = document.createElement('li');
-    li.textContent = `${k} ➜ ${dictionary[k]}`;
-    wordListEl.appendChild(li);
-  });
 
-  function toggleList() {
-    wordListEl.style.display = wordListEl.style.display === 'block' ? 'none' : 'block';
-  }
+// ===== 初始化單字清單 =====
+const wordList = document.getElementById("wordList");
+Object.keys(dictionary).forEach(k => {
+  const div = document.createElement("div");
+  div.className = "word";
+  div.textContent = `${k} → ${dictionary[k]}`;
+  wordList.appendChild(div);
+});
 
-  // ===== 即時翻譯函數
-  function zhToKo() {
-    const input = document.getElementById('zhInput').value.trim();
-    const resultEl = document.getElementById('zhResult');
-    const countEl = document.getElementById('zhCount');
+// ===== 翻譯入口 =====
+function zhToKo() {
+  const input = document.getElementById("zhInput").value;
+  const result = translateZhToKo(input);
 
-    if(!input) {
-      resultEl.textContent = '';
-      countEl.textContent = '';
-      return;
+  document.getElementById("koOutput").value = result.text;
+  document.getElementById("stats").textContent =
+    `✅ 翻到 ${result.hit} 詞 ｜ ❌ 未翻 ${result.miss} ｜ 📊 ${result.rate}%`;
+}
+
+// ===== 翻譯核心（長詞優先）=====
+function translateZhToKo(text) {
+  if (!text.trim()) return { text:"", hit:0, miss:0, rate:0 };
+
+  const keys = Object.keys(dictionary).sort((a,b)=>b.length-a.length);
+  let hit = 0;
+
+  for (const key of keys) {
+    if (text.includes(key)) {
+      text = text.split(key).join(` ${dictionary[key]} `);
+      hit++;
     }
-
-    const words = input.split(/\s*/);
-    const translated = words.map(w => dictionary[w] || `[${w}]`).join(' ');
-    resultEl.textContent = translated;
-    countEl.textContent = `字數: ${words.length}`;
   }
 
-  function koToZh() {
-    const input = document.getElementById('koInput').value.trim();
-    const resultEl = document.getElementById('koResult');
-    const countEl = document.getElementById('koCount');
+  text = text.replace(/\s+/g," ").trim();
+  text = text.replace(/다(?=[가-힣])/g,"다 ");
 
-    if(!input) {
-      resultEl.textContent = '';
-      countEl.textContent = '';
-      return;
-    }
+  const chineseCount = [...document.getElementById("zhInput").value]
+    .filter(c=>/[\u4e00-\u9fff]/.test(c)).length;
 
-    const words = input.split(/\s+/);
-    const translated = words.map(w => {
-      const key = Object.keys(dictionary).find(k => dictionary[k] === w);
-      return key ? key : `[${w}]`;
-    }).join(' ');
-    resultEl.textContent = translated;
-    countEl.textContent = `字數: ${words.length}`;
-  }
+  const miss = Math.max(chineseCount - hit, 0);
+  const rate = Math.round(hit / (hit + miss || 1) * 100);
+
+  return { text, hit, miss, rate };
+}
+
+// ===== 單字清單展開 =====
+function toggleList() {
+  wordList.style.display =
+    wordList.style.display === "none" ? "block" : "none";
+}
 </script>
-
 </body>
 </html>
-
