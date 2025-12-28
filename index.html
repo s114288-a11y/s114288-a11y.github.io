@@ -1224,45 +1224,107 @@ const dictionary = {
   "未來科技": "미래 기술",
 };
 
-
+<script>
 // 頁面載入後建立單字清單
 document.addEventListener("DOMContentLoaded", renderWordList);
 
 // 中文 → 韓文
 function zhToKo() {
-  const input = document.getElementById("zhInput").value;
-  const result = input.split("").map(c => dictionary[c] || "").join(" ");
-  document.getElementById("zhResult").textContent = result;
-  document.getElementById("zhCount").textContent = `字數: ${input.length}`;
+  const input = document.getElementById("zhInput").value.trim();
+  const resultDiv = document.getElementById("zhResult");
+  const countDiv = document.getElementById("zhCount");
+
+  if (!input) {
+    resultDiv.textContent = "";
+    countDiv.textContent = "";
+    return;
+  }
+
+  // 先排序詞彙，長的詞優先
+  const words = Object.keys(dictionary).sort((a, b) => b.length - a.length);
+
+  let translated = "";
+  let unknownChars = input;
+
+  while (unknownChars.length > 0) {
+    let matched = false;
+
+    for (let word of words) {
+      if (unknownChars.startsWith(word)) {
+        translated += dictionary[word];
+        unknownChars = unknownChars.slice(word.length);
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      // 如果沒有匹配就保留原字
+      translated += unknownChars[0];
+      unknownChars = unknownChars.slice(1);
+    }
+  }
+
+  resultDiv.textContent = translated;
+  countDiv.textContent = `輸入字數: ${input.length}`;
 }
 
 // 韓文 → 中文
 function koToZh() {
-  const input = document.getElementById("koInput").value;
-  const words = input.split(" ");
-  const result = words.map(k => {
-    for (let key in dictionary) {
-      if (dictionary[key] === k) return key;
+  const input = document.getElementById("koInput").value.trim();
+  const resultDiv = document.getElementById("koResult");
+  const countDiv = document.getElementById("koCount");
+
+  if (!input) {
+    resultDiv.textContent = "";
+    countDiv.textContent = "";
+    return;
+  }
+
+  // 建立反向字典
+  const revDict = Object.fromEntries(Object.entries(dictionary).map(([k,v]) => [v,k]));
+  const words = Object.keys(revDict).sort((a, b) => b.length - a.length);
+
+  let translated = "";
+  let unknownChars = input;
+
+  while (unknownChars.length > 0) {
+    let matched = false;
+
+    for (let word of words) {
+      if (unknownChars.startsWith(word)) {
+        translated += revDict[word];
+        unknownChars = unknownChars.slice(word.length);
+        matched = true;
+        break;
+      }
     }
-    return "";
-  }).join("");
-  document.getElementById("koResult").textContent = result;
-  document.getElementById("koCount").textContent = `字數: ${words.length}`;
+
+    if (!matched) {
+      translated += unknownChars[0];
+      unknownChars = unknownChars.slice(1);
+    }
+  }
+
+  resultDiv.textContent = translated;
+  countDiv.textContent = `輸入字數: ${input.length}`;
 }
 
-// 展開 / 收合單字清單
+// 顯示 / 隱藏單字清單
 function toggleList() {
   const list = document.getElementById("wordList");
-  if (list.style.display === "none" || list.style.display === "") {
-    list.style.display = "block";
-    list.innerHTML = Object.keys(dictionary).map(word => `<li>${word}</li>`).join("");
-  } else {
-    list.style.display = "none";
+  list.style.display = list.style.display === "block" ? "none" : "block";
+}
+
+// 建立單字清單
+function renderWordList() {
+  const list = document.getElementById("wordList");
+  list.innerHTML = "";
+  for (let key in dictionary) {
+    const li = document.createElement("li");
+    li.textContent = `${key} ➜ ${dictionary[key]}`;
+    list.appendChild(li);
   }
 }
 </script>
-
-</body>
-</html>
-
 
