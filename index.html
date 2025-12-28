@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>中韓即時翻譯練習（修正版）</title>
-   <link rel="icon"href="icon.jpg">
+  <link rel="icon" href="icon.jpg">
   <style>
     body {
       font-family: "Comic Neue", "Inter", "Segoe UI", Arial, sans-serif;
       background-color: #f3e0c7;
-      background-image: url("1000004132");
+      background-image: url("1000004132.jpg");
       background-repeat: repeat;
       background-size: 140px 140px;
       padding: 40px 20px;
@@ -69,13 +69,6 @@
       color: #7c4a1e;
       line-height: 1.8;
     }
-    .hit {
-      background-color: #fde68a;
-      padding: 2px 6px;
-      border-radius: 6px;
-      margin: 0 2px;
-      display: inline-block;
-    }
     .count {
       margin-top: 6px;
       font-size: 13px;
@@ -114,6 +107,9 @@
       background-color: #fffbeb;
       border: 2px dashed #fde68a;
       font-size: 14px;
+      display: none;
+      max-height: 300px;
+      overflow: auto;
     }
     #wordList li {
       padding: 4px 0;
@@ -155,8 +151,8 @@
       <hr>
 
       <strong>📖 可翻譯單字清單：</strong><br>
-      <button onclick="toggleList()" style="margin:8px 0;">展開 / 收合</button>
-      <ul id="wordList" style="display:none; max-height:300px; overflow:auto;"></ul>
+      <button onclick="toggleList()">展開 / 收合</button>
+      <ul id="wordList"></ul>
 
       <div class="bottom-bear">🧸</div>
     </div>
@@ -924,7 +920,7 @@ const dictionary = {
   "溝通": "소통",
   "理解力": "이해력",
   "流利": "유창하다",
-  "練習量": "연습량"
+  "練習量": "연습량",
   "能源": "에너지",
   "電力": "전력",
   "燃料": "연료",
@@ -1232,129 +1228,41 @@ const dictionary = {
 // 頁面載入後建立單字清單
 document.addEventListener("DOMContentLoaded", renderWordList);
 
-// ===============================
-// 2. 中文 ➜ 韓文
-// ===============================
+// 中文 → 韓文
 function zhToKo() {
-  const input = document.getElementById("zhInput").value.trim();
-  const result = document.getElementById("zhResult");
-  const countBox = document.getElementById("zhCount");
-  result.className = "result";
-  countBox.textContent = "";
-
-  if (input === "") {
-    result.innerHTML = "";
-    return;
-  }
-
-  if (!/^[一-鿿]+$/.test(input)) {
-    result.textContent = "請只輸入中文";
-    result.classList.add("error");
-    return;
-  }
-
-  let output = "";
-  let i = 0;
-  let hitCount = 0;
-
-  while (i < input.length) {
-    let found = false;
-
-    for (let len = Math.min(4, input.length - i); len > 0; len--) {
-      const chunk = input.substr(i, len);
-      if (dictionary[chunk]) {
-        output += `<span class=\"hit\">${dictionary[chunk]}</span> `;
-        i += len;
-        found = true;
-        hitCount++;
-        break;
-      }
-    }
-
-    if (!found) {
-      output += input[i] + " ";
-      i++;
-    }
-  }
-
-  result.innerHTML = output.trim();
-  countBox.textContent = `📊 本句翻譯到 ${hitCount} 個單字`;
+  const input = document.getElementById("zhInput").value;
+  const result = input.split("").map(c => dictionary[c] || "").join(" ");
+  document.getElementById("zhResult").textContent = result;
+  document.getElementById("zhCount").textContent = `字數: ${input.length}`;
 }
 
-// ===============================
-// 3. 韓文 ➜ 中文
-// ===============================
+// 韓文 → 中文
 function koToZh() {
-  const input = document.getElementById("koInput").value.trim();
-  const result = document.getElementById("koResult");
-  const countBox = document.getElementById("koCount");
-  result.className = "result";
-  countBox.textContent = "";
-
-  if (input === "") {
-    result.innerHTML = "";
-    return;
-  }
-
-  if (!/^[가-힯\s]+$/.test(input)) {
-    result.textContent = "請只輸入韓文";
-    result.classList.add("error");
-    return;
-  }
-
-  let output = "";
-  let i = 0;
-  let hitCount = 0;
-  const entries = Object.entries(dictionary);
-
-  while (i < input.length) {
-    let found = false;
-
-    for (let len = Math.min(6, input.length - i); len > 0; len--) {
-      const chunk = input.substr(i, len);
-      const match = entries.find(([zh, ko]) => ko === chunk);
-      if (match) {
-        output += `<span class="hit">${match[0]}</span> `;
-        i += len;
-        found = true;
-        hitCount++;
-        break;
-      }
+  const input = document.getElementById("koInput").value;
+  const words = input.split(" ");
+  const result = words.map(k => {
+    for (let key in dictionary) {
+      if (dictionary[key] === k) return key;
     }
-
-    if (!found) {
-      output += input[i] + " ";
-      i++;
-    }
-  }
-
-  result.innerHTML = output.trim();
-  countBox.textContent = `📊 本句翻譯到 ${hitCount} 個單字`;
-}
-// ===============================
-// 4. 顯示可翻譯單字清單（修正語法錯誤）
-// ===============================
-function renderWordList() {
-  const wordList = document.getElementById("wordList");
-  wordList.innerHTML = "";
-
-  Object.keys(dictionary).forEach(zh => {
-    const li = document.createElement("li");
-    li.textContent = "🐣 " + zh + " ⇄ " + dictionary[zh];
-    li.style.cursor = "default";
-    wordList.appendChild(li);
-  });
+    return "";
+  }).join("");
+  document.getElementById("koResult").textContent = result;
+  document.getElementById("koCount").textContent = `字數: ${words.length}`;
 }
 
-// ===============================
-// 5. 展開 / 收合
-// ===============================
+// 展開 / 收合單字清單
 function toggleList() {
-  const wordList = document.getElementById("wordList");
-  wordList.style.display = wordList.style.display === "none" ? "block" : "none";
+  const list = document.getElementById("wordList");
+  if (list.style.display === "none" || list.style.display === "") {
+    list.style.display = "block";
+    list.innerHTML = Object.keys(dictionary).map(word => `<li>${word}</li>`).join("");
+  } else {
+    list.style.display = "none";
+  }
 }
 </script>
 
 </body>
 </html>
+
 
