@@ -2,79 +2,172 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>中韓即時翻譯練習</title>
-  <link rel="icon"href="icon.jpg">
+  <title>中韓即時翻譯練習（修正版）</title>
+   <link rel="icon"href="icon.jpg">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      padding: 20px;
+      font-family: "Comic Neue", "Inter", "Segoe UI", Arial, sans-serif;
+      background-color: #f3e0c7;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'><g fill='%238b5a2b' fill-opacity='0.25'><circle cx='70' cy='55' r='26'/><circle cx='52' cy='42' r='10'/><circle cx='88' cy='42' r='10'/><ellipse cx='70' cy='95' rx='28' ry='18'/></g></svg>");
+      background-repeat: repeat;
+      background-size: 140px 140px;
+      padding: 40px 20px;
+      color: #333;
     }
     .box {
+      position: relative;
       background-color: #ffffff;
-      padding: 20px;
-      max-width: 520px;
+      padding: 32px;
+      max-width: 600px;
       margin: auto;
-      border-radius: 8px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      border: 3px dashed #fde68a;
     }
+    .bear {
+      position: absolute;
+      font-size: 40px;
+      opacity: 0.9;
+    }
+    .bear-left { top: -18px; left: -18px; }
+    .bear-right { top: -18px; right: -18px; }
+    .bottom-bear {
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 42px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    h2::before { content: "✨ "; }
     input {
       width: 100%;
-      padding: 8px;
-      margin-top: 10px;
+      padding: 14px 14px;
+      margin-top: 8px;
       font-size: 16px;
+      border: 2px solid #fde68a;
+      border-radius: 12px;
+      background-color: #fffbeb;
+    }
+    input:focus {
+      outline: none;
+      border-color: #facc15;
+      background-color: #ffffff;
     }
     .result {
       margin-top: 10px;
-      min-height: 22px;
-      color: #333;
+      min-height: 24px;
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background-color: #f7e7ce;
+      color: #7c4a1e;
+      line-height: 1.8;
+    }
+    .hit {
+      background-color: #fde68a;
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin: 0 2px;
+      display: inline-block;
+    }
+    .count {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #92400e;
     }
     .error {
-      color: red;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+    hr {
+      border: none;
+      border-top: 2px dotted #fde68a;
+      margin: 28px 0;
     }
     .rules {
-      margin-top: 20px;
+      margin-top: 28px;
       font-size: 14px;
-      color: #666;
+      color: #92400e;
+      position: relative;
+    }
+    .rules ul { padding-left: 18px; }
+    button {
+      margin-top: 8px;
+      padding: 6px 16px;
+      font-size: 13px;
+      border-radius: 999px;
+      border: 2px solid #facc15;
+      background-color: #fef9c3;
+      cursor: pointer;
+    }
+    button:hover { background-color: #fde68a; }
+    #wordList {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background-color: #fffbeb;
+      border: 2px dashed #fde68a;
+      font-size: 14px;
+    }
+    #wordList li {
+      padding: 4px 0;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    #wordList li:hover {
+      transform: translateY(-3px);
+      background-color: #fef3c7;
     }
   </style>
 </head>
 <body>
 
   <div class="box">
-    <h2>中文 ➜ 韓文（即時翻譯）</h2>
+    <div class="bear bear-left">🧸</div>
+    <div class="bear bear-right">🧸</div>
+
+    <h2>🧸 中文 ➜ 韓文（即時翻譯）</h2>
     <input id="zhInput" type="text" placeholder="請輸入中文" oninput="zhToKo()">
     <div id="zhResult" class="result"></div>
+    <div id="zhCount" class="count"></div>
 
     <hr>
 
-    <h2>韓文 ➜ 中文（即時翻譯）</h2>
+    <h2>🧸 韓文 ➜ 中文（即時翻譯）</h2>
     <input id="koInput" type="text" placeholder="한국어를 입력하세요" oninput="koToZh()">
     <div id="koResult" class="result"></div>
+    <div id="koCount" class="count"></div>
 
     <div class="rules">
-      <strong>使用規則：</strong>
+      <strong>🐾 使用規則：</strong>
       <ul>
         <li>上方輸入區只能輸入中文</li>
         <li>下方輸入區只能輸入韓文</li>
         <li>輸入時會即時翻譯，不需要按按鈕</li>
         <li>僅支援字典中已有的詞彙</li>
       </ul>
+
       <hr>
-      <strong>可翻譯單字清單：</strong><br>
+
+      <strong>📖 可翻譯單字清單：</strong><br>
       <button onclick="toggleList()" style="margin:8px 0;">展開 / 收合</button>
       <ul id="wordList" style="display:none; max-height:300px; overflow:auto;"></ul>
+
+      <div class="bottom-bear">🧸</div>
     </div>
   </div>
 
-  <script>
+<script>
 // ===============================
-// 1. 中韓對照字典（從外部 JSON 載入）
-// ===============================
-// ===============================
-// 1. 中韓對照字典（直接內建，不使用外部檔案）
+// 1. 中韓對照字典（內建）
 // ===============================
 const dictionary = {
-  "我": "나",
+ "我": "나",
   "你": "너",
   "他": "그",
   "她": "그녀",
@@ -524,8 +617,9 @@ const dictionary = {
   "保重": "몸조심하세요"
 };
 
-// 頁面載入完成後產生單字清單
-renderWordList();
+
+// 頁面載入後建立單字清單
+document.addEventListener("DOMContentLoaded", renderWordList);
 
 // ===============================
 // 2. 中文 ➜ 韓文
@@ -533,10 +627,12 @@ renderWordList();
 function zhToKo() {
   const input = document.getElementById("zhInput").value.trim();
   const result = document.getElementById("zhResult");
+  const countBox = document.getElementById("zhCount");
   result.className = "result";
+  countBox.textContent = "";
 
   if (input === "") {
-    result.textContent = "";
+    result.innerHTML = "";
     return;
   }
 
@@ -546,7 +642,32 @@ function zhToKo() {
     return;
   }
 
-  result.textContent = dictionary[input] || "找不到對應的韓文";
+  let output = "";
+  let i = 0;
+  let hitCount = 0;
+
+  while (i < input.length) {
+    let found = false;
+
+    for (let len = Math.min(4, input.length - i); len > 0; len--) {
+      const chunk = input.substr(i, len);
+      if (dictionary[chunk]) {
+        output += `<span class=\"hit\">${dictionary[chunk]}</span> `;
+        i += len;
+        found = true;
+        hitCount++;
+        break;
+      }
+    }
+
+    if (!found) {
+      output += input[i] + " ";
+      i++;
+    }
+  }
+
+  result.innerHTML = output.trim();
+  countBox.textContent = `📊 本句翻譯到 ${hitCount} 個單字`;
 }
 
 // ===============================
@@ -573,7 +694,7 @@ function koToZh() {
 }
 
 // ===============================
-// 4. 顯示可翻譯單字清單
+// 4. 顯示可翻譯單字清單（修正語法錯誤）
 // ===============================
 function renderWordList() {
   const wordList = document.getElementById("wordList");
@@ -581,7 +702,8 @@ function renderWordList() {
 
   Object.keys(dictionary).forEach(zh => {
     const li = document.createElement("li");
-    li.textContent = zh + " ⇄ " + dictionary[zh];
+    li.textContent = "🐣 " + zh + " ⇄ " + dictionary[zh];
+    li.style.cursor = "default";
     wordList.appendChild(li);
   });
 }
@@ -591,10 +713,10 @@ function renderWordList() {
 // ===============================
 function toggleList() {
   const wordList = document.getElementById("wordList");
-  wordList.style.display =
-    wordList.style.display === "none" ? "block" : "none";
+  wordList.style.display = wordList.style.display === "none" ? "block" : "none";
 }
 </script>
 
 </body>
 </html>
+
