@@ -2168,21 +2168,15 @@ const dictionary = {
 
 };
 
-// ===== 初始化單字清單 =====
-  const wordList = document.getElementById("wordList");
-  Object.keys(dictionary).forEach(k => {
-    const div = document.createElement("div");
-    div.className = "word";
-    div.textContent = ${k} → ${dictionary[k]}; 
-    wordList.appendChild(div); 
-  });
-// ===============================
-// 0. 預處理（去重 + 建反向字典）
-// ===============================
+
+
+// 你的原始 dictionary（1000+）放在這之前
+// const dictionary = { ... };
+
 const zhToKoDict = {};
 const koToZhDict = {};
 
-// 去掉重複（後寫覆蓋前寫，這是 JS 規則）
+// 去重：後寫覆蓋前寫（JS 標準行為）
 for (const [zh, ko] of Object.entries(dictionary)) {
   zhToKoDict[zh] = ko;
   if (!koToZhDict[ko]) {
@@ -2190,7 +2184,7 @@ for (const [zh, ko] of Object.entries(dictionary)) {
   }
 }
 
-// 長詞優先 key 清單
+// 長詞優先（核心關鍵）
 const zhKeys = Object.keys(zhToKoDict).sort((a, b) => b.length - a.length);
 const koKeys = Object.keys(koToZhDict).sort((a, b) => b.length - a.length);
 
@@ -2219,29 +2213,27 @@ function koToZh() {
 }
 
 // ===============================
-// 3. 核心翻譯引擎（通用）
+// 3. 核心翻譯引擎（共用）
 // ===============================
 function translate(text, keys, dict) {
   if (!text.trim()) {
     return { text: "", hit: 0, miss: 0, rate: 0 };
   }
 
-  let hit = 0;
-  let used = new Set();
   let output = text;
+  let hit = 0;
 
   for (const key of keys) {
     if (output.includes(key)) {
       output = output.split(key).join(` ${dict[key]} `);
       hit++;
-      used.add(key);
     }
   }
 
-  // 清空多餘空白
+  // 清理多餘空白
   output = output.replace(/\s+/g, " ").trim();
 
-  // 粗估未翻（中文字 or 韓文字）
+  // 粗估未翻譯數量
   const chars = [...text].filter(c =>
     dict === zhToKoDict
       ? /[\u4e00-\u9fff]/.test(c)
@@ -2255,17 +2247,20 @@ function translate(text, keys, dict) {
 }
 
 // ===============================
-// 4. 單字清單 展開 / 收合
+// 4. 單字清單（展開 / 收合）
 // ===============================
 function toggleList() {
   const ul = document.getElementById("wordList");
+
   if (ul.innerHTML === "") {
     ul.innerHTML = Object.entries(zhToKoDict)
       .map(([zh, ko]) => `<li>${zh} → ${ko}</li>`)
       .join("");
   }
+
   ul.style.display = ul.style.display === "none" ? "block" : "none";
 }
+
 </script>
 </body>
 </html>
