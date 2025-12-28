@@ -2,161 +2,185 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>中韓即時翻譯練習（修正版）</title>
+  <title>中韓即時翻譯練習（優化版）</title>
   <link rel="icon" href="icon.jpg">
   <style>
+    /* ======== 全局 ======== */
     body {
       font-family: "Comic Neue", "Inter", "Segoe UI", Arial, sans-serif;
       background-color: #f3e0c7;
       background-image: url("1000004132");
       background-repeat: repeat;
-      background-size: 140px 140px;
+      background-size: contain; /* 背景自適應 */
       padding: 40px 20px;
-      color: #333;
+      color: #222;
     }
+
     .box {
       position: relative;
       background-color: #ffffff;
-      padding: 32px;
+      padding: 2rem;
       max-width: 600px;
       margin: auto;
       border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-      border: 3px dashed #fde68a;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      border: 3px dashed #facc15;
     }
+
     .bear {
       position: absolute;
-      font-size: 40px;
+      font-size: 2.5rem;
       opacity: 0.9;
     }
-    .bear-left { top: -18px; left: -18px; }
-    .bear-right { top: -18px; right: -18px; }
+
+    .bear-left { top: -1rem; left: -1rem; }
+    .bear-right { top: -1rem; right: -1rem; }
     .bottom-bear {
       position: absolute;
-      bottom: -28px;
+      bottom: -1.5rem;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 42px;
+      font-size: 2.7rem;
     }
+
     h2 {
-      font-size: 20px;
+      font-size: 1.25rem;
       font-weight: 600;
-      margin-bottom: 10px;
+      margin-bottom: 0.5rem;
       letter-spacing: 1px;
     }
+
     h2::before { content: "✨ "; }
+
     input {
       width: 100%;
-      padding: 14px 14px;
-      margin-top: 8px;
-      font-size: 16px;
-      border: 2px solid #fde68a;
+      padding: 0.75rem 1rem;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      border: 2px solid #facc15;
       border-radius: 12px;
       background-color: #fffbeb;
     }
+
     input:focus {
       outline: none;
-      border-color: #facc15;
+      border-color: #f59e0b;
       background-color: #ffffff;
     }
+
     .result {
-      margin-top: 10px;
-      min-height: 24px;
-      font-size: 16px;
-      padding: 8px 12px;
+      margin-top: 0.5rem;
+      min-height: 1.5rem;
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
       border-radius: 10px;
-      background-color: #f7e7ce;
-      color: #7c4a1e;
-      line-height: 1.8;
+      background-color: #fef3c7;
+      color: #78350f; /* WCAG友善顏色 */
+      line-height: 1.6;
     }
+
     .count {
-      margin-top: 6px;
-      font-size: 13px;
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
       color: #92400e;
     }
+
     .error {
       color: #b91c1c;
       background-color: #fee2e2;
     }
+
     hr {
       border: none;
       border-top: 2px dotted #fde68a;
-      margin: 28px 0;
+      margin: 2rem 0;
     }
+
     .rules {
-      margin-top: 28px;
-      font-size: 14px;
-      color: #92400e;
-      position: relative;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #78350f;
     }
-    .rules ul { padding-left: 18px; }
+
+    .rules ul { padding-left: 1.2rem; }
+
     button {
-      margin-top: 8px;
-      padding: 6px 16px;
-      font-size: 13px;
+      margin-top: 0.5rem;
+      padding: 0.4rem 1rem;
+      font-size: 0.85rem;
       border-radius: 999px;
       border: 2px solid #facc15;
       background-color: #fef9c3;
       cursor: pointer;
     }
+
     button:hover { background-color: #fde68a; }
+
     #wordList {
-      margin-top: 10px;
-      padding: 10px;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
       border-radius: 12px;
       background-color: #fffbeb;
       border: 2px dashed #fde68a;
-      font-size: 14px;
+      font-size: 0.9rem;
       display: none;
-      max-height: 300px;
+      max-height: 30vh; /* 響應式高度 */
       overflow: auto;
     }
+
     #wordList li {
-      padding: 4px 0;
+      padding: 0.25rem 0;
       transition: transform 0.2s ease, background-color 0.2s ease;
     }
+
     #wordList li:hover {
       transform: translateY(-3px);
       background-color: #fef3c7;
     }
+
+    @media (max-width: 500px) {
+      input { font-size: 0.9rem; padding: 0.5rem; }
+      .result { font-size: 0.9rem; }
+    }
+
   </style>
 </head>
 <body>
 
-  <div class="box">
-    <div class="bear bear-left">🧸</div>
-    <div class="bear bear-right">🧸</div>
+<div class="box">
+  <div class="bear bear-left">🧸</div>
+  <div class="bear bear-right">🧸</div>
 
-    <h2>🧸 中文 ➜ 韓文（即時翻譯）</h2>
-    <input id="zhInput" type="text" placeholder="請輸入中文" oninput="zhToKo()">
-    <div id="zhResult" class="result"></div>
-    <div id="zhCount" class="count"></div>
+  <h2>🧸 中文 ➜ 韓文（即時翻譯）</h2>
+  <input id="zhInput" type="text" placeholder="請輸入中文" oninput="zhToKo()">
+  <div id="zhResult" class="result"></div>
+  <div id="zhCount" class="count"></div>
+
+  <hr>
+
+  <h2>🧸 韓文 ➜ 中文（即時翻譯）</h2>
+  <input id="koInput" type="text" placeholder="한국어를 입력하세요" oninput="koToZh()">
+  <div id="koResult" class="result"></div>
+  <div id="koCount" class="count"></div>
+
+  <div class="rules">
+    <strong>🐾 使用規則：</strong>
+    <ul>
+      <li>上方輸入區只能輸入中文</li>
+      <li>下方輸入區只能輸入韓文</li>
+      <li>輸入時會即時翻譯，不需要按按鈕</li>
+      <li>僅支援字典中已有的詞彙</li>
+    </ul>
 
     <hr>
 
-    <h2>🧸 韓文 ➜ 中文（即時翻譯）</h2>
-    <input id="koInput" type="text" placeholder="한국어를 입력하세요" oninput="koToZh()">
-    <div id="koResult" class="result"></div>
-    <div id="koCount" class="count"></div>
+    <strong>📖 可翻譯單字清單：</strong><br>
+    <button onclick="toggleList()">展開 / 收合</button>
+    <ul id="wordList"></ul>
 
-    <div class="rules">
-      <strong>🐾 使用規則：</strong>
-      <ul>
-        <li>上方輸入區只能輸入中文</li>
-        <li>下方輸入區只能輸入韓文</li>
-        <li>輸入時會即時翻譯，不需要按按鈕</li>
-        <li>僅支援字典中已有的詞彙</li>
-      </ul>
-
-      <hr>
-
-      <strong>📖 可翻譯單字清單：</strong><br>
-      <button onclick="toggleList()">展開 / 收合</button>
-      <ul id="wordList"></ul>
-
-      <div class="bottom-bear">🧸</div>
-    </div>
+    <div class="bottom-bear">🧸</div>
   </div>
+</div>
 
 <script>
 // ===============================
@@ -2145,59 +2169,56 @@ const dictionary = {
 };
 </script>
 <script>
-// 頁面載入後建立單字清單
-document.addEventListener("DOMContentLoaded", renderWordList);
-
-function renderWordList() {
-  const list = document.getElementById("wordList");
-  list.innerHTML = "";
-  Object.keys(dictionary).forEach(word => {
-    const li = document.createElement("li");
-    li.textContent = `${word} ➜ ${dictionary[word]}`;
-    list.appendChild(li);
+ const wordListEl = document.getElementById('wordList');
+  Object.keys(dictionary).forEach(k => {
+    const li = document.createElement('li');
+    li.textContent = `${k} ➜ ${dictionary[k]}`;
+    wordListEl.appendChild(li);
   });
-}
 
-function toggleList() {
-  const list = document.getElementById("wordList");
-  list.style.display = list.style.display === "none" ? "block" : "none";
-}
+  function toggleList() {
+    wordListEl.style.display = wordListEl.style.display === 'block' ? 'none' : 'block';
+  }
 
-function zhToKo() {
-  const input = document.getElementById("zhInput").value.trim();
-  const resultDiv = document.getElementById("zhResult");
-  const countDiv = document.getElementById("zhCount");
-  if (!input) {
-    resultDiv.textContent = "";
-    countDiv.textContent = "";
-    return;
-  }
-  let translated = "";
-  for (let char of input) {
-    translated += dictionary[char] ? dictionary[char] : char;
-  }
-  resultDiv.textContent = translated;
-  countDiv.textContent = `字數: ${input.length}`;
-}
+  // ===== 即時翻譯函數
+  function zhToKo() {
+    const input = document.getElementById('zhInput').value.trim();
+    const resultEl = document.getElementById('zhResult');
+    const countEl = document.getElementById('zhCount');
 
-function koToZh() {
-  const input = document.getElementById("koInput").value.trim();
-  const resultDiv = document.getElementById("koResult");
-  const countDiv = document.getElementById("koCount");
-  if (!input) {
-    resultDiv.textContent = "";
-    countDiv.textContent = "";
-    return;
+    if(!input) {
+      resultEl.textContent = '';
+      countEl.textContent = '';
+      return;
+    }
+
+    const words = input.split(/\s*/);
+    const translated = words.map(w => dictionary[w] || `[${w}]`).join(' ');
+    resultEl.textContent = translated;
+    countEl.textContent = `字數: ${words.length}`;
   }
-  let translated = "";
-  for (let char of input) {
-    const key = Object.keys(dictionary).find(k => dictionary[k] === char);
-    translated += key ? key : char;
+
+  function koToZh() {
+    const input = document.getElementById('koInput').value.trim();
+    const resultEl = document.getElementById('koResult');
+    const countEl = document.getElementById('koCount');
+
+    if(!input) {
+      resultEl.textContent = '';
+      countEl.textContent = '';
+      return;
+    }
+
+    const words = input.split(/\s+/);
+    const translated = words.map(w => {
+      const key = Object.keys(dictionary).find(k => dictionary[k] === w);
+      return key ? key : `[${w}]`;
+    }).join(' ');
+    resultEl.textContent = translated;
+    countEl.textContent = `字數: ${words.length}`;
   }
-  resultDiv.textContent = translated;
-  countDiv.textContent = `字數: ${input.length}`;
-}
 </script>
 
 </body>
 </html>
+
