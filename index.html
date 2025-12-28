@@ -2169,54 +2169,96 @@ const dictionary = {
 };
 
 // ===== 初始化單字清單 =====
-const wordList = document.getElementById("wordList");
-Object.keys(dictionary).forEach(k => {
-  const div = document.createElement("div");
-  div.className = "word";
-  div.textContent = `${k} → ${dictionary[k]}`;
-  wordList.appendChild(div);
-});
+<script>
+// ===============================
+// 0. 預處理（去重 + 建反向字典）
+// ===============================
+const zhToKoDict = {};
+const koToZhDict = {};
 
-// ===== 翻譯入口 =====
-function zhToKo() {
-  const input = document.getElementById("zhInput").value;
-  const result = translateZhToKo(input);
-
-  document.getElementById("koOutput").value = result.text;
-  document.getElementById("stats").textContent =
-    `✅ 翻到 ${result.hit} 詞 ｜ ❌ 未翻 ${result.miss} ｜ 📊 ${result.rate}%`;
+// 去掉重複（後寫覆蓋前寫，這是 JS 規則）
+for (const [zh, ko] of Object.entries(dictionary)) {
+  zhToKoDict[zh] = ko;
+  if (!koToZhDict[ko]) {
+    koToZhDict[ko] = zh;
+  }
 }
 
-// ===== 翻譯核心（長詞優先）=====
-function translateZhToKo(text) {
-  if (!text.trim()) return { text:"", hit:0, miss:0, rate:0 };
+// 長詞優先 key 清單
+const zhKeys = Object.keys(zhToKoDict).sort((a, b) => b.length - a.length);
+const koKeys = Object.keys(koToZhDict).sort((a, b) => b.length - a.length);
 
-  const keys = Object.keys(dictionary).sort((a,b)=>b.length-a.length);
+// ===============================
+// 1. 中文 → 韓文
+// ===============================
+function zhToKo() {
+  const input = document.getElementById("zhInput").value;
+  const result = translate(input, zhKeys, zhToKoDict);
+
+  document.getElementById("zhResult").textContent = result.text;
+  document.getElementById("zhCount").textContent =
+    `翻到 ${result.hit} 詞｜未翻 ${result.miss} 詞｜命中率 ${result.rate}%`;
+}
+
+// ===============================
+// 2. 韓文 → 中文
+// ===============================
+function koToZh() {
+  const input = document.getElementById("koInput").value;
+  const result = translate(input, koKeys, koToZhDict);
+
+  document.getElementById("koResult").textContent = result.text;
+  document.getElementById("koCount").textContent =
+    `翻到 ${result.hit} 詞｜未翻 ${result.miss} 詞｜命中率 ${result.rate}%`;
+}
+
+// ===============================
+// 3. 核心翻譯引擎（通用）
+// ===============================
+function translate(text, keys, dict) {
+  if (!text.trim()) {
+    return { text: "", hit: 0, miss: 0, rate: 0 };
+  }
+
   let hit = 0;
+  let used = new Set();
+  let output = text;
 
   for (const key of keys) {
-    if (text.includes(key)) {
-      text = text.split(key).join(` ${dictionary[key]} `);
+    if (output.includes(key)) {
+      output = output.split(key).join(` ${dict[key]} `);
       hit++;
+      used.add(key);
     }
   }
 
-  text = text.replace(/\s+/g," ").trim();
-  text = text.replace(/다(?=[가-힣])/g,"다 ");
+  // 清空多餘空白
+  output = output.replace(/\s+/g, " ").trim();
 
-  const chineseCount = [...document.getElementById("zhInput").value]
-    .filter(c=>/[\u4e00-\u9fff]/.test(c)).length;
+  // 粗估未翻（中文字 or 韓文字）
+  const chars = [...text].filter(c =>
+    dict === zhToKoDict
+      ? /[\u4e00-\u9fff]/.test(c)
+      : /[가-힣]/.test(c)
+  );
 
-  const miss = Math.max(chineseCount - hit, 0);
-  const rate = Math.round(hit / (hit + miss || 1) * 100);
+  const miss = Math.max(chars.length - hit, 0);
+  const rate = Math.round((hit / (hit + miss || 1)) * 100);
 
-  return { text, hit, miss, rate };
+  return { text: output, hit, miss, rate };
 }
 
-// ===== 單字清單展開 =====
+// ===============================
+// 4. 單字清單 展開 / 收合
+// ===============================
 function toggleList() {
-  wordList.style.display =
-    wordList.style.display === "none" ? "block" : "none";
+  const ul = document.getElementById("wordList");
+  if (ul.innerHTML === "") {
+    ul.innerHTML = Object.entries(zhToKoDict)
+      .map(([zh, ko]) => `<li>${zh} → ${ko}</li>`)
+      .join("");
+  }
+  ul.style.display = ul.style.display === "none" ? "block" : "none";
 }
 </script>
 </body>
