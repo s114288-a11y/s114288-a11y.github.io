@@ -2169,7 +2169,13 @@ const dictionary = {
 };
 
 // ===== 初始化單字清單 =====
-<script>
+  const wordList = document.getElementById("wordList");
+  Object.keys(dictionary).forEach(k => {
+    const div = document.createElement("div");
+    div.className = "word";
+    div.textContent = ${k} → ${dictionary[k]}; 
+    wordList.appendChild(div); 
+  });
 // ===============================
 // 0. 預處理（去重 + 建反向字典）
 // ===============================
