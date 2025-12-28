@@ -676,23 +676,50 @@ function zhToKo() {
 function koToZh() {
   const input = document.getElementById("koInput").value.trim();
   const result = document.getElementById("koResult");
+  const countBox = document.getElementById("koCount");
   result.className = "result";
+  countBox.textContent = "";
 
   if (input === "") {
-    result.textContent = "";
+    result.innerHTML = "";
     return;
   }
 
-  if (!/^[가-힯]+$/.test(input)) {
+  if (!/^[가-힯\s]+$/.test(input)) {
     result.textContent = "請只輸入韓文";
     result.classList.add("error");
     return;
   }
 
-  const zhWord = Object.keys(dictionary).find(key => dictionary[key] === input);
-  result.textContent = zhWord || "找不到對應的中文";
-}
+  let output = "";
+  let i = 0;
+  let hitCount = 0;
+  const entries = Object.entries(dictionary);
 
+  while (i < input.length) {
+    let found = false;
+
+    for (let len = Math.min(6, input.length - i); len > 0; len--) {
+      const chunk = input.substr(i, len);
+      const match = entries.find(([zh, ko]) => ko === chunk);
+      if (match) {
+        output += `<span class="hit">${match[0]}</span> `;
+        i += len;
+        found = true;
+        hitCount++;
+        break;
+      }
+    }
+
+    if (!found) {
+      output += input[i] + " ";
+      i++;
+    }
+  }
+
+  result.innerHTML = output.trim();
+  countBox.textContent = `📊 本句翻譯到 ${hitCount} 個單字`;
+}
 // ===============================
 // 4. 顯示可翻譯單字清單（修正語法錯誤）
 // ===============================
