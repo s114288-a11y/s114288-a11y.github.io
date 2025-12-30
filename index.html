@@ -276,13 +276,12 @@ function toggleList() {
   const ul = document.getElementById("wordList");
 
   if (ul.innerHTML === "") {
-    ul.innerHTML = Object.entries(zhToKoDict)
-      .map(([zh, ko]) => `<li>${zh} → ${ko}</li>`)
-      .join("");
-  }
-
-  ul.style.display = ul.style.display === "none" ? "block" : "none";
+  ul.innerHTML = Object.entries(zhToKoDict)
+    .map(([zh, ko]) => `<li>${zh} → ${ko}</li>`)
+    .join("");
 }
+ul.style.display = ul.style.display === "none" ? "block" : "none";
+
 </script>
 </body>
 </html>
